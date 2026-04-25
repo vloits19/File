@@ -43,12 +43,13 @@ const getFileIcon = (type: string) => {
   return <File className="w-6 h-6 text-gray-500" />;
 };
 
-const getSizeWarning = (size: number): { threshold: string; color: string } | null => {
+const getSizeWarning = (size: number): { title: string; message: string; color: string } | null => {
   const mb = size / (1024 * 1024);
-  if (mb > 25) return { threshold: '25MB', color: 'text-red-600 bg-red-50 border-red-200' };
-  if (mb > 10) return { threshold: '10MB', color: 'text-orange-600 bg-orange-50 border-orange-200' };
-  if (mb > 5) return { threshold: '5MB', color: 'text-yellow-600 bg-yellow-50 border-yellow-200' };
-  if (mb > 2) return { threshold: '2MB', color: 'text-blue-600 bg-blue-50 border-blue-200' };
+  if (mb > 2000) return { title: 'File Ekstra Besar (> 2GB)', message: 'Hanya bisa dikirim via Telegram Premium atau penyimpanan cloud seperti Google Drive.', color: 'text-red-700 bg-red-50 border-red-200' };
+  if (mb > 100) return { title: 'Batas Dokumen WhatsApp (> 100MB)', message: 'Tidak bisa dikirim langsung via WA biasa. Harus menggunakan link cloud storage.', color: 'text-orange-700 bg-orange-50 border-orange-200' };
+  if (mb > 64) return { title: 'Batas Media WhatsApp (> 64MB)', message: 'Terlalu besar untuk dikirim sebagai Video/Foto biasa di WA, tapi mungkin masih bisa sebagai Dokumen.', color: 'text-amber-700 bg-amber-50 border-amber-200' };
+  if (mb > 25) return { title: 'Batas Email / Discord (> 25MB)', message: 'Tidak bisa dilampirkan langsung di Gmail/Outlook, atau dikirim di Discord pengguna gratis.', color: 'text-yellow-700 bg-yellow-50 border-yellow-200' };
+  if (mb > 8) return { title: 'Peringatan Ukuran Sedang (> 8MB)', message: 'Aman untuk WA dan Email, namun batas upload beberapa platform forum/web mungkin menolak.', color: 'text-blue-700 bg-blue-50 border-blue-200' };
   return null;
 };
 
@@ -324,14 +325,18 @@ export default function App() {
                             <Alert className={clsx('border', warning.color)}>
                               <AlertTriangle className="w-4 h-4" />
                               <AlertDescription>
-                                File exceeds {warning.threshold} limit
+                                <span className="font-bold block mb-1">{warning.title}</span>
+                                <span className="opacity-90 leading-tight block">{warning.message}</span>
                               </AlertDescription>
                             </Alert>
                           ) : (
-                            <div className="flex items-center gap-2 text-green-600 text-sm">
+                            <Alert className="border text-green-700 bg-green-50 border-green-200">
                               <CheckCircle className="w-4 h-4" />
-                              <span>File size is within acceptable limits</span>
-                            </div>
+                              <AlertDescription>
+                                <span className="font-bold block mb-1">Ukuran File Aman</span>
+                                <span className="opacity-90 leading-tight block">File ini cukup kecil dan sangat aman dikirim ke hampir semua platform populer (termasuk Email dan WhatsApp).</span>
+                              </AlertDescription>
+                            </Alert>
                           )}
                         </div>
                       </div>
