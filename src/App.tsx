@@ -2,7 +2,8 @@ import React, { useState, useRef, useCallback } from 'react';
 import { 
   Upload, X, FileText, Image as ImageIcon, File, FileArchive, 
   FileCode, FileSpreadsheet, FileVideo, FileAudio, AlertTriangle,
-  CheckCircle, Trash2, Calendar, HardDrive, Maximize, Ratio
+  CheckCircle, Trash2, Calendar, HardDrive, Maximize, Ratio,
+  Clock, Wifi, Activity, Zap
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -149,6 +150,21 @@ export default function App() {
 
   const handleClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const totalSize = files.reduce((acc, file) => acc + file.size, 0);
+
+  const calculateTime = (speedMbps: number) => {
+    if (totalSize === 0) return '-';
+    const bytesPerSec = (speedMbps * 1024 * 1024) / 8;
+    const seconds = totalSize / bytesPerSec;
+    
+    if (seconds < 60) return `${Math.ceil(seconds)} dtk`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} mnt ${Math.floor(seconds % 60)} dtk`;
+    const hours = Math.floor(minutes / 60);
+    const remainingMins = minutes % 60;
+    return `${hours} jam ${remainingMins} mnt`;
   };
 
   return (
@@ -359,28 +375,53 @@ export default function App() {
           </div>
         )}
 
-        {/* Size Limits Reference */}
-        <Card className="mt-8 bg-slate-50 border-slate-200">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-slate-600">Size Limit Reference</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-3 py-1">
-                2MB
-              </Badge>
-              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 px-3 py-1">
-                5MB
-              </Badge>
-              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 px-3 py-1">
-                10MB
-              </Badge>
-              <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 px-3 py-1">
-                25MB
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Upload Time Estimator */}
+        {files.length > 0 && (
+          <Card className="mt-8 bg-white border-slate-200 shadow-sm overflow-hidden">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-500" />
+                Estimasi Waktu Upload ({formatFileSize(totalSize)})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex flex-col p-5 rounded-xl bg-slate-50 border border-slate-100 transition-all hover:shadow-md">
+                  <div className="flex items-center gap-2 text-slate-600 mb-4">
+                    <Activity className="w-5 h-5" />
+                    <span className="font-medium">Jaringan Biasa (4G/3G)</span>
+                  </div>
+                  <div className="flex items-end justify-between mt-auto">
+                    <span className="text-2xl font-bold text-slate-800">{calculateTime(10)}</span>
+                    <span className="text-sm text-slate-500 mb-1">~10 Mbps</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col p-5 rounded-xl bg-blue-50 border border-blue-100 transition-all hover:shadow-md hover:border-blue-300">
+                  <div className="flex items-center gap-2 text-blue-700 mb-4">
+                    <Wifi className="w-5 h-5" />
+                    <span className="font-medium">Wi-Fi Standar</span>
+                  </div>
+                  <div className="flex items-end justify-between mt-auto">
+                    <span className="text-2xl font-bold text-blue-900">{calculateTime(50)}</span>
+                    <span className="text-sm text-blue-600/70 mb-1">~50 Mbps</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col p-5 rounded-xl bg-purple-50 border border-purple-100 transition-all hover:shadow-md hover:border-purple-300">
+                  <div className="flex items-center gap-2 text-purple-700 mb-4">
+                    <Zap className="w-5 h-5" />
+                    <span className="font-medium">Internet Cepat (Fiber)</span>
+                  </div>
+                  <div className="flex items-end justify-between mt-auto">
+                    <span className="text-2xl font-bold text-purple-900">{calculateTime(100)}</span>
+                    <span className="text-sm text-purple-600/70 mb-1">~100 Mbps</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
